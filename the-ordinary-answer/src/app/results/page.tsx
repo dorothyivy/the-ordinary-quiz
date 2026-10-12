@@ -1,10 +1,9 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { decodeResults, formatPrice } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { ConflictWarnings } from '@/components/ui/ConflictWarnings';
 import { EmailCapture } from '@/components/ui/EmailCapture';
@@ -17,14 +16,31 @@ interface ResultsData {
 }
 
 function ResultsContent() {
-  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'morning' | 'evening' | 'weekly'>('morning');
+  const [data, setData] = useState<ResultsData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const data = useMemo(() => {
-    const encoded = searchParams.get('data');
-    if (!encoded) return null;
-    return decodeResults<ResultsData>(decodeURIComponent(encoded));
-  }, [searchParams]);
+  useEffect(() => {
+    try {
+      const stored =
+        sessionStorage.getItem('quizResults') ||
+        localStorage.getItem('quizResults');
+      if (stored) {
+        setData(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-brand-sand border-t-brand-charcoal rounded-full animate-spin" />
+      </main>
+    );
+  }
 
   if (!data) {
     return (
@@ -47,24 +63,9 @@ function ResultsContent() {
   const { profile, recommendation } = data;
 
   const tabs = [
-    {
-      id: 'morning' as const,
-      label: 'Morning',
-      icon: '☀️',
-      count: recommendation.morning.length,
-    },
-    {
-      id: 'evening' as const,
-      label: 'Evening',
-      icon: '🌙',
-      count: recommendation.evening.length,
-    },
-    {
-      id: 'weekly' as const,
-      label: 'Weekly',
-      icon: '📅',
-      count: recommendation.weekly.length,
-    },
+    { id: 'morning' as const, label: 'Morning', icon: '☀️', count: recommendation.morning.length },
+    { id: 'evening' as const, label: 'Evening', icon: '🌙', count: recommendation.evening.length },
+    { id: 'weekly' as const, label: 'Weekly', icon: '📅', count: recommendation.weekly.length },
   ];
 
   const activeProducts =
@@ -98,7 +99,6 @@ function ResultsContent() {
   return (
     <main className="min-h-screen px-4 py-8 pb-20">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,7 +123,6 @@ function ResultsContent() {
           </p>
         </motion.div>
 
-        {/* Skin Profile Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -135,42 +134,26 @@ function ResultsContent() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <span className="text-xs uppercase tracking-wider text-brand-slate">
-                Skin Type
-              </span>
-              <p className="font-medium capitalize text-brand-charcoal">
-                {profile.skinType}
-              </p>
+              <span className="text-xs uppercase tracking-wider text-brand-slate">Skin Type</span>
+              <p className="font-medium capitalize text-brand-charcoal">{profile.skinType}</p>
             </div>
             <div>
-              <span className="text-xs uppercase tracking-wider text-brand-slate">
-                Age
-              </span>
+              <span className="text-xs uppercase tracking-wider text-brand-slate">Age</span>
               <p className="font-medium text-brand-charcoal">{profile.age}</p>
             </div>
             <div>
-              <span className="text-xs uppercase tracking-wider text-brand-slate">
-                Experience
-              </span>
-              <p className="font-medium capitalize text-brand-charcoal">
-                {profile.experience}
-              </p>
+              <span className="text-xs uppercase tracking-wider text-brand-slate">Experience</span>
+              <p className="font-medium capitalize text-brand-charcoal">{profile.experience}</p>
             </div>
             <div>
-              <span className="text-xs uppercase tracking-wider text-brand-slate">
-                Total Cost
-              </span>
-              <p className="font-medium text-brand-coral text-lg">
-                {formatPrice(recommendation.totalCost)}
-              </p>
+              <span className="text-xs uppercase tracking-wider text-brand-slate">Total Cost</span>
+              <p className="font-medium text-brand-coral text-lg">{formatPrice(recommendation.totalCost)}</p>
             </div>
           </div>
 
           {profile.concerns.length > 0 && (
             <div className="mt-4 pt-4 border-t border-brand-sand/30">
-              <span className="text-xs uppercase tracking-wider text-brand-slate">
-                Concerns
-              </span>
+              <span className="text-xs uppercase tracking-wider text-brand-slate">Concerns</span>
               <div className="flex flex-wrap gap-2 mt-2">
                 {profile.concerns.map((concern) => (
                   <span
@@ -185,14 +168,12 @@ function ResultsContent() {
           )}
         </motion.div>
 
-        {/* Conflict Warnings */}
         {recommendation.conflictWarnings.length > 0 && (
           <div className="mb-8">
             <ConflictWarnings warnings={recommendation.conflictWarnings} />
           </div>
         )}
 
-        {/* Routine Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -214,9 +195,7 @@ function ResultsContent() {
                 <span>{tab.label}</span>
                 <span
                   className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    activeTab === tab.id
-                      ? 'bg-white/20'
-                      : 'bg-brand-sand/50'
+                    activeTab === tab.id ? 'bg-white/20' : 'bg-brand-sand/50'
                   }`}
                 >
                   {tab.count}
@@ -226,7 +205,6 @@ function ResultsContent() {
           </div>
         </motion.div>
 
-        {/* Product Cards */}
         <div className="space-y-4 mb-10">
           {activeProducts.length > 0 ? (
             activeProducts.map((item, index) => (
@@ -234,19 +212,15 @@ function ResultsContent() {
             ))
           ) : (
             <div className="quiz-card text-center py-10">
-              <p className="text-brand-slate">
-                No products recommended for this routine segment.
-              </p>
+              <p className="text-brand-slate">No products recommended for this routine segment.</p>
             </div>
           )}
         </div>
 
-        {/* Email Capture */}
         <div className="mb-10">
           <EmailCapture onSubmit={handleEmailSubmit} />
         </div>
 
-        {/* Retake Quiz */}
         <div className="text-center">
           <Link href="/quiz" className="btn-secondary">
             Retake Quiz
