@@ -7,7 +7,6 @@ import { quizQuestions } from '@/data/questions';
 import { ProgressBar } from '@/components/quiz/ProgressBar';
 import { QuestionCard } from '@/components/quiz/QuestionCard';
 import { buildSkinProfile, generateRecommendation } from '@/lib/recommendation-engine';
-import { encodeResults } from '@/lib/utils';
 import type { QuizAnswer } from '@/types';
 
 export default function QuizPage() {
@@ -39,21 +38,29 @@ export default function QuizPage() {
     if (currentQuestion < quizQuestions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
-      // Quiz complete - generate results
       setIsProcessing(true);
 
-      // Small delay for the animation
       setTimeout(() => {
         const profile = buildSkinProfile(answers);
         const recommendation = generateRecommendation(profile);
 
-        const encoded = encodeResults({
+        const resultsData = {
           profile,
           recommendation,
           completedAt: new Date().toISOString(),
-        });
+        };
 
-        router.push(`/results?data=${encodeURIComponent(encoded)}&v=1`);
+        try {
+          sessionStorage.setItem('quizResults', JSON.stringify(resultsData));
+        } catch {
+          try {
+            localStorage.setItem('quizResults', JSON.stringify(resultsData));
+          } catch {
+            // ignore storage errors
+          }
+        }
+
+        router.push('/results');
       }, 1500);
     }
   }, [currentQuestion, answers, router]);
@@ -68,7 +75,6 @@ export default function QuizPage() {
     (a) => a.questionId === question?.id
   );
 
-  // Processing state
   if (isProcessing) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center px-4">
@@ -95,7 +101,6 @@ export default function QuizPage() {
 
   return (
     <main className="min-h-screen flex flex-col px-4 py-8">
-      {/* Header */}
       <div className="max-w-xl mx-auto w-full mb-8">
         <div className="flex items-center justify-between mb-6">
           <button
@@ -114,7 +119,6 @@ export default function QuizPage() {
         />
       </div>
 
-      {/* Question */}
       <div className="flex-1 flex items-start justify-center pt-4">
         <AnimatePresence mode="wait">
           {question && (
