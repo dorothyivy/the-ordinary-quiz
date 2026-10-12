@@ -1,0 +1,70 @@
+═══════════════════════════════════════════════════════════
+KLAVIYO SMS TEMPLATES — The Ordinary Answer Skincare Quiz
+═══════════════════════════════════════════════════════════
+
+──── TEMPLATE 1: Quiz Results Ready ────────────────────────
+
+Hey {{ first_name|default:"" }}! ✨ Your personalized skincare routine is ready!
+
+{{ morning_product_count }} AM products + {{ evening_product_count }} PM products for your {{ skin_type }} skin.
+
+Total: ${{ total_cost }}
+
+View your full routine: {{ results_url }}
+
+Reply STOP to unsubscribe.
+
+──── TEMPLATE 2: Skincare Tip (Day 3 Follow-up) ───────────
+
+💡 Skincare tip for {{ skin_type }} skin:
+
+Always apply products thinnest → thickest consistency. Water-based serums go before oils and creams!
+
+Your full routine order: {{ results_url }}
+
+Reply STOP to unsubscribe.
+
+──── TEMPLATE 3: Ingredient Reminder (Day 7) ──────────────
+
+⚠️ Quick reminder, {{ first_name|default:"" }}!
+
+{% if has_conflicts %}
+Your routine has ingredient conflicts to watch:
+{{ conflict_summary }}
+
+See details: {{ results_url }}
+{% else %}
+Great news — your routine has no ingredient conflicts! You can safely use all products together.
+{% endif %}
+
+Reply STOP to unsubscribe.
+
+──── TEMPLATE 4: Restock Reminder (Day 45) ─────────────────
+
+🔄 Time for a restock check!
+
+Most 30ml serums last 6-8 weeks. Running low on any of your {{ product_count }} products?
+
+Re-check your routine: {{ results_url }}
+
+Reply STOP to unsubscribe.
+
+──── TEMPLATE 5: Retake Quiz (Seasonal, every 90 days) ─────
+
+🌿 Seasons change, skin changes!
+
+Your skincare needs shift with the weather. Take a 2-min refresh quiz to update your routine.
+
+Retake quiz: {{ quiz_url }}
+
+Reply STOP to unsubscribe.
+
+═══════════════════════════════════════════════════════════
+SETUP NOTES:
+- Create a Klaviyo Flow triggered by "Quiz Completed" event
+- Set delays between each SMS (Day 0, 3, 7, 45, 90)
+- Segment by skin_type for personalized content
+- Track click rates on results_url to measure engagement
+- SMS messages should be under 160 chars when possible
+  (the ones above are longer for Klaviyo's smart splitting)
+═══════════════════════════════════════════════════════════

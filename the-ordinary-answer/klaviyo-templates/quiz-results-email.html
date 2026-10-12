@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Personalized Skincare Routine</title>
+  <!--
+    KLAVIYO EMAIL TEMPLATE: Quiz Results
+
+    Dynamic Variables (set from quiz data):
+    - {{ first_name|default:"there" }}
+    - {{ skin_type }}
+    - {{ experience_level }}
+    - {{ morning_products }}  (comma-separated product names)
+    - {{ evening_products }}
+    - {{ total_cost }}
+    - {{ top_concerns }}
+    - {{ results_url }}       (link back to results page)
+    - {{ conflict_warnings }} (any ingredient warnings)
+  -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF7F2; color: #2D2D2D; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: #2D2D2D; color: #ffffff; padding: 40px 30px; text-align: center; }
+    .header h1 { font-family: Georgia, serif; font-size: 28px; margin-bottom: 8px; }
+    .header p { font-size: 14px; color: #E8C4B8; }
+    .content { padding: 30px; }
+    .profile-box { background: #FAF7F2; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .profile-box h2 { font-family: Georgia, serif; font-size: 20px; margin-bottom: 12px; }
+    .profile-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    .profile-item { flex: 1; min-width: 120px; }
+    .profile-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #6B7280; }
+    .profile-item .value { font-size: 16px; font-weight: 600; margin-top: 4px; }
+    .routine-section { margin-bottom: 24px; }
+    .routine-section h3 { font-family: Georgia, serif; font-size: 18px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #F0E8DB; }
+    .product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #F0E8DB; }
+    .product-row:last-child { border-bottom: none; }
+    .product-name { font-weight: 500; font-size: 14px; }
+    .product-step { font-size: 12px; color: #6B7280; }
+    .product-price { font-size: 14px; font-weight: 600; color: #E07A5F; }
+    .warning-box { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 12px; padding: 16px; margin-bottom: 24px; }
+    .warning-box h4 { color: #92400E; font-size: 14px; margin-bottom: 8px; }
+    .warning-box p { color: #78350F; font-size: 13px; }
+    .cta-section { text-align: center; padding: 24px 0; }
+    .cta-button { display: inline-block; background: #2D2D2D; color: #ffffff !important; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-weight: 500; font-size: 14px; }
+    .footer { background: #FAF7F2; padding: 24px 30px; text-align: center; font-size: 11px; color: #6B7280; }
+    .footer a { color: #4A4A4A; }
+    .total-row { display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #2D2D2D; margin-top: 8px; }
+    .total-row .label { font-weight: 600; font-size: 16px; }
+    .total-row .value { font-weight: 700; font-size: 18px; color: #E07A5F; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>The Ordinary Answer</h1>
+      <p>Your Personalized Skincare Routine</p>
+    </div>
+
+    <div class="content">
+      <!-- Greeting -->
+      <p style="font-size: 16px; margin-bottom: 20px;">
+        Hey {{ first_name|default:"there" }}! 👋
+      </p>
+      <p style="font-size: 14px; color: #4A4A4A; margin-bottom: 24px;">
+        Your personalized routine is ready. We analyzed your skin profile across
+        71 products to find the perfect match for your {{ skin_type }} skin.
+      </p>
+
+      <!-- Skin Profile -->
+      <div class="profile-box">
+        <h2>Your Skin Profile</h2>
+        <div class="profile-grid">
+          <div class="profile-item">
+            <div class="label">Skin Type</div>
+            <div class="value">{{ skin_type }}</div>
+          </div>
+          <div class="profile-item">
+            <div class="label">Experience</div>
+            <div class="value">{{ experience_level }}</div>
+          </div>
+          <div class="profile-item">
+            <div class="label">Top Concerns</div>
+            <div class="value">{{ top_concerns }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conflict Warnings -->
+      {% if conflict_warnings %}
+      <div class="warning-box">
+        <h4>⚠️ Ingredient Warnings</h4>
+        <p>{{ conflict_warnings }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Morning Routine -->
+      <div class="routine-section">
+        <h3>☀️ Morning Routine</h3>
+        {% for product in morning_products %}
+        <div class="product-row">
+          <div>
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-step">Step {{ product.step }} · {{ product.reason }}</div>
+          </div>
+          <div class="product-price">${{ product.price }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Evening Routine -->
+      <div class="routine-section">
+        <h3>🌙 Evening Routine</h3>
+        {% for product in evening_products %}
+        <div class="product-row">
+          <div>
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-step">Step {{ product.step }} · {{ product.reason }}</div>
+          </div>
+          <div class="product-price">${{ product.price }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Total -->
+      <div class="total-row">
+        <span class="label">Total Routine Cost</span>
+        <span class="value">${{ total_cost }}</span>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-section">
+        <a href="{{ results_url }}" class="cta-button">
+          View Full Results Online →
+        </a>
+        <p style="font-size: 12px; color: #6B7280; margin-top: 12px;">
+          Bookmark this link to access your routine anytime
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        The Ordinary Answer is an independent educational tool.<br>
+        Not affiliated with The Ordinary / DECIEM.<br><br>
+        <a href="{{ unsubscribe_url }}">Unsubscribe</a> · <a href="{{ preferences_url }}">Preferences</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
